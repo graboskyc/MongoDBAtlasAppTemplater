@@ -1,0 +1,165 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime;
+
+<PageTitle>App Templater 3000</PageTitle>
+
+<div class="container">
+    <EditForm Model="@d">
+        <h1>Let's start out with giving your deployment a name</h1>
+        <input type="text" @bind="d.Name" class="form-control" />
+
+        <h1>Ok, for <b>@d.Name</b>, what type of deployment is it?</h1>
+        <select @bind="d.UsageType" class="form-control">
+            <option>Development</option>
+            <option>UAT/Test/QA</option>
+            <option>Production</option>
+        </select>
+
+        @if(d.UsageType == "Production") {
+            <h1>Will you need identical lower environemnts for <b>@d.Name</b> (e.g. Dev or Prod)?</h1>
+            <select @bind="d.IdenticalLowers" class="form-control">
+                <option>No</option>
+                <option>Yes</option>
+            </select>
+        }
+
+        <h1>How would you describe the classification of data stored within <b>@d.Name</b>?</h1>
+        <select @bind="d.DataClassification" class="form-control">
+            <option>High Risk (PII)</option>
+            <option>Moderate Risk</option>
+            <option>No Risk or No PII</option>
+        </select>
+
+        <h1>Are there data locality concerns?</h1>
+        <select @bind="d.DataLocality" class="form-control">
+            <option>No</option>
+            <option>Yes</option>
+        </select>
+
+        @if(d.DataLocality == "Yes") {
+            @if(d.Localities != null) {
+                <table class="table table-striped" style="margin:5px;">
+                    <thead class="thead-dark"><tr>
+                        <th></th>
+                        <th>Locality</th>
+                    </tr></thead>
+                    <tbody>
+                        @for (int i = 0; i < d.Localities.Count; i++)
+                        {
+                            int j = i;
+                            <tr>
+                                <td><button @onclick="(() => DelLoc(d.Localities[j]))" class="btn btn-sm btn-danger"><span class="oi oi-trash"></span></button></td>
+                                <td>
+                                    <select @bind="d.Localities[j]" class="form-control">
+                                        @foreach (var pli in PossibleLocalities)
+                                        {
+                                            <option>@pli</option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                
+            }
+            <button @onclick="AddLoc" class="btn btn-sm btn-default" style="width: 100%;">Add Locality Requirement</button>
+        }
+
+        <h1>What is your High-Availability requirement?</h1>
+        <select @bind="d.HA" class="form-control">
+            <option value="3">Survive an AZ failure or node failure</option>
+            <option value="5">Survive multiple node failures or whole region failures</option>
+        </select>
+
+        <h1>Do you have analytical query needs?</h1>
+        <select @bind="d.Analytics" class="form-control">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+            <option value="2">Yes, we need lots of analytics jobs in parallel</option>
+        </select>
+
+        <h1>What are your backup needs?</h1>
+        <select @bind="d.Backup" class="form-control">
+            <option>None</option>
+            <option>Daily Snapshots</option>
+            <option>Hourly Snapshots</option>
+            <option>Point-in-Time Rollback and Restore</option>
+        </select>
+
+        <h1>Roughly how many GBs of data do you need to store?</h1>
+        <input type="number" @bind="d.DataGB" class="form-control" />
+
+        @if((d.DataGB > 2500) || (d.DataLocality == "Yes")) {
+            <h1>Are there any other fields you always query on (like a customer ID or order ID)?</h1>
+            @if(d.ShardKeys != null) {
+                <table class="table table-striped" style="margin:5px;">
+                    <thead class="thead-dark"><tr>
+                        <th></th>
+                        <th>Field Name</th>
+                    </tr></thead>
+                    <tbody>
+                        @for (int i = 0; i < d.ShardKeys.Count; i++)
+                        {
+                            int k = i;
+                            <tr>
+                                <td><button @onclick="(() => DelSK(d.ShardKeys[k]))" class="btn btn-sm btn-danger"><span class="oi oi-trash"></span></button></td>
+                                <td>
+                                    <input type="text" @bind="d.ShardKeys[k]" class="form-control" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                
+            }
+            <button @onclick="AddSK" class="btn btn-sm btn-default" style="width: 100%;">Add Locality Requirement</button>
+        }
+
+        @if(d.IdenticalLowers == "Yes") {
+            <i>Remember to deploy and identical lower environemnt for Dev and Pre-Prod!</i>
+        }
+
+        <button @onclick="Save" class="btn btn-lg btn-success" style="width: 100%;">Save</button>
+    </EditForm>
+</div>
+
+@code {
+    DataModels.Deployment d = null;
+    private List<string> PossibleLocalities = new List<string>{"US","EU","APAC"};
+
+    protected override async Task OnInitializedAsync() {
+        d = new DataModels.Deployment();
+    }
+
+    private void DelLoc(string l) {
+        d.Localities.RemoveAll(s => s == l);
+        StateHasChanged();
+    }
+
+    private void AddLoc() {
+        if(d.Localities == null) {
+            d.Localities = new List<string>();
+        }
+        d.Localities.Add(PossibleLocalities.FirstOrDefault());
+        StateHasChanged();
+   }
+
+   private void DelSK(string sk) {
+        d.ShardKeys.RemoveAll(s => s == sk);
+        StateHasChanged();
+    }
+
+    private void AddSK() {
+        if(d.ShardKeys == null) {
+            d.ShardKeys = new List<string>();
+        }
+        d.ShardKeys.Add("");
+        StateHasChanged();
+   }
+
+    private async Task Save() {
+        await JSRuntime.InvokeVoidAsync("shimLog", d);
+        Console.WriteLine(d);
+    }
+}
