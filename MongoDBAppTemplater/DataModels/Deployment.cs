@@ -10,6 +10,6 @@ namespace MongoDBAppTemplater.DataModels {
         public string DataLocality {get;set;} = "No";
         public List<string> Localities {get;set;} = null;
         public string Backup {get;set;} = "None";
-        public List<string> ShardKeys {get;set;} = null;
+        public List<string> ShardKeys {get;set;} = new List<string>();
     }
 }

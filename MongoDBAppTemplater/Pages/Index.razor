@@ -63,7 +63,7 @@
                 </table>
                 
             }
-            <button @onclick="AddLoc" class="btn btn-sm btn-default" style="width: 100%;">Add Locality Requirement</button>
+            <button @onclick="AddLoc" class="btn btn-sm btn-warning" style="width: 100%;">Add Locality Requirement</button>
         }
 
         <h1>What is your High-Availability requirement?</h1>
@@ -90,7 +90,7 @@
         <h1>Roughly how many GBs of data do you need to store?</h1>
         <input type="number" @bind="d.DataGB" class="form-control" />
 
-        @if((d.DataGB > 2500) || (d.DataLocality == "Yes")) {
+        @if((d.DataGB > magic_maxReplSetSize) || (d.DataLocality == "Yes")) {
             <h1>Are there any other fields you always query on (like a customer ID or order ID)?</h1>
             @if(d.ShardKeys != null) {
                 <table class="table table-striped" style="margin:5px;">
@@ -113,20 +113,70 @@
                 </table>
                 
             }
-            <button @onclick="AddSK" class="btn btn-sm btn-default" style="width: 100%;">Add Locality Requirement</button>
-        }
-
-        @if(d.IdenticalLowers == "Yes") {
-            <i>Remember to deploy and identical lower environemnt for Dev and Pre-Prod!</i>
+            <button @onclick="AddSK" class="btn btn-sm btn-warning" style="width: 100%;">Add Frequently Access Field</button>
         }
 
         <button @onclick="Save" class="btn btn-lg btn-success" style="width: 100%;">Save</button>
+
+        <div class="card" style="padding-top:50px;">
+            <div class="card-header">
+                <h5 class="card-title">Results</h5>
+                <p>We Recommend:</p>
+                <ul>
+                    <!-- BEGIN: HANDLE REPL SET DETAILS -->
+                    <li>A replication factor of @d.HA</li>
+                    @if(d.Analytics != 0) {
+                        int replSetCt = d.HA + d.Analytics;
+                        <li>Another @d.Analytics node(s) for analytics (bringing total count to @replSetCt</li>
+                    }
+                    <!-- END: HANDLE REPL SET DETAILS -->
+
+                    <!-- BEGIN: HANDLE SHARDING -->
+                    @if ((d.DataLocality == "Yes") && (d.Localities != null)) {
+                        <li>Sharding due data locality reasons so you want at least @d.Localities.Count shards</li>
+                        <li>Viable shard keys would include:</li>
+                        <ul>
+                            <li>Location</li>
+                            @foreach (var sk in d.ShardKeys)
+                            {
+                                <li>@sk</li>
+                            }
+                        </ul>
+                    } else if(d.DataGB > magic_maxReplSetSize) {
+                        int shardCount = d.DataGB/magic_maxReplSetSize;
+                        <li>Sharding due to size so you would want at least @shardCount shards </li>
+                        <li>Viable shard keys would include:</li>
+                        <ul>
+                            @foreach (var sk in d.ShardKeys)
+                            {
+                                <li>@sk</li>
+                            }
+                        </ul>
+                    } 
+                    <!-- END: HANDLE SHARDING -->
+
+                    <!-- BEGIN: HANDLE SECURITY -->
+                    @if(d.DataClassification != "No Risk or No PII" ) {
+                        <li>Encryption at rest with BYOK using the WT encrypted storage engine</li>
+                        @if(d.DataClassification == "High Risk (PII)" ) {
+                            <li>Client Side Field Level Encryption</li>
+                        }
+                    }
+                    <!-- END: HANDLE SECURITY -->
+                </ul>
+                
+                @if(d.IdenticalLowers == "Yes") {
+                    <p><i>Remember to deploy and identical lower environemnt for Dev and Pre-Prod!</i></p>
+                }
+            </div>
+        </div>
     </EditForm>
 </div>
 
 @code {
     DataModels.Deployment d = null;
     private List<string> PossibleLocalities = new List<string>{"US","EU","APAC"};
+    private int magic_maxReplSetSize = 2500;
 
     protected override async Task OnInitializedAsync() {
         d = new DataModels.Deployment();
