@@ -34,8 +34,9 @@ body {
     padding:50px;
     height:80vh;
     margin-top:10vh;
-    width: 80%;
-    margin-left:10%;
+    min-width: 100%;
+    place-items: center;
+    display: grid;
 }
 
 .ctr_spin_parent {
@@ -62,3 +63,14 @@ body {
     width: 100%;
     height:100vh;
 }
+
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+ } 
+
+ .fadeIn {
+    animation-name: fadeIn;
+    animation-iteration-count: 1;
+    animation-duration: 1500ms;
+ }

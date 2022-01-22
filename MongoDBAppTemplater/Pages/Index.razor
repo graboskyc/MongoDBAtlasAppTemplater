@@ -8,182 +8,206 @@
     @switch (clickIndex)
     {
         case 0:
-            <h1>Let's start out with giving your deployment a name</h1>
-            <input type="text" @bind="d.Name" class="form-control" />
+            <div class="fadeIn">
+                <h1>Let's start out with giving your deployment a name</h1>
+                <input type="text" @bind="d.Name" class="form-control" />
+            </div>
         break;
         case 1:
-            <h1>Ok, for <b>@d.Name</b>, what type of deployment is it?</h1>
-            <select @bind="d.UsageType" class="form-control">
-                <option>Development</option>
-                <option>UAT/Test/QA</option>
-                <option>Production</option>
-            </select>
+            <div class="fadeIn">
+                <h1>Ok, for <b>@d.Name</b>, what type of deployment is it?</h1>
+                <select @bind="d.UsageType" class="form-control">
+                    <option>Development</option>
+                    <option>UAT/Test/QA</option>
+                    <option>Production</option>
+                </select>
+            </div>
             break;
         case 2:
             @if(d.UsageType == "Production") {
-                <h1>Will you need identical lower environemnts for <b>@d.Name</b> (e.g. Dev or Prod)?</h1>
-                <select @bind="d.IdenticalLowers" class="form-control">
-                    <option>No</option>
-                    <option>Yes</option>
-                </select>
+                <div class="fadeIn">
+                    <h1>Will you need identical lower environemnts for <b>@d.Name</b> (e.g. Dev or Prod)?</h1>
+                    <select @bind="d.IdenticalLowers" class="form-control">
+                        <option>No</option>
+                        <option>Yes</option>
+                    </select>
+                </div>
             } else {
                 Next();
             }
         break;
         case 3:
-            <h1>How would you describe the classification of data stored within <b>@d.Name</b>?</h1>
-            <select @bind="d.DataClassification" class="form-control">
-                <option>High Risk (PII)</option>
-                <option>Moderate Risk</option>
-                <option>No Risk or No PII</option>
-            </select>
+            <div class="fadeIn">
+                <h1>How would you describe the classification of data stored within <b>@d.Name</b>?</h1>
+                <select @bind="d.DataClassification" class="form-control">
+                    <option>High Risk (PII)</option>
+                    <option>Moderate Risk</option>
+                    <option>No Risk or No PII</option>
+                </select>
+            </div>
         break;
         case 4:
-            <h1>Are there data locality concerns?</h1>
-            <select @bind="d.DataLocality" class="form-control">
-                <option>No</option>
-                <option>Yes</option>
-            </select>
+            <div class="fadeIn">
+                <h1>Are there data locality concerns?</h1>
+                <select @bind="d.DataLocality" class="form-control">
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            
 
-            @if(d.DataLocality == "Yes") {
-                @if(d.Localities != null) {
-                    <table class="table table-striped" style="margin:5px;">
-                        <thead class="thead-dark"><tr>
-                            <th></th>
-                            <th>Locality</th>
-                        </tr></thead>
-                        <tbody>
-                            @for (int i = 0; i < d.Localities.Count; i++)
-                            {
-                                int j = i;
-                                <tr>
-                                    <td><button @onclick="(() => DelLoc(d.Localities[j]))" class="btn btn-sm btn-danger"><span class="oi oi-trash"></span></button></td>
-                                    <td>
-                                        <select @bind="d.Localities[j]" class="form-control">
-                                            @foreach (var pli in PossibleLocalities)
-                                            {
-                                                <option>@pli</option>
-                                            }
-                                        </select>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                    
+                @if(d.DataLocality == "Yes") {
+                    @if(d.Localities != null) {
+                        <table class="table table-striped" style="margin:5px;">
+                            <thead class="thead-dark"><tr>
+                                <th></th>
+                                <th>Locality</th>
+                            </tr></thead>
+                            <tbody>
+                                @for (int i = 0; i < d.Localities.Count; i++)
+                                {
+                                    int j = i;
+                                    <tr>
+                                        <td><button @onclick="(() => DelLoc(d.Localities[j]))" class="btn btn-sm btn-danger"><span class="oi oi-trash"></span></button></td>
+                                        <td>
+                                            <select @bind="d.Localities[j]" class="form-control">
+                                                @foreach (var pli in PossibleLocalities)
+                                                {
+                                                    <option>@pli</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        
+                    }
+                    <button @onclick="AddLoc" class="btn btn-sm btn-warning" style="width: 100%;">Add Locality Requirement</button>
                 }
-                <button @onclick="AddLoc" class="btn btn-sm btn-warning" style="width: 100%;">Add Locality Requirement</button>
-            }
+            </div>
         break;
         case 5:
-            <h1>What is your High-Availability requirement?</h1>
-            <select @bind="d.HA" class="form-control">
-                <option value="3">Survive an AZ failure or node failure</option>
-                <option value="5">Survive multiple node failures or whole region failures</option>
-            </select>
+            <div class="fadeIn">
+                <h1>What is your High-Availability requirement?</h1>
+                <select @bind="d.HA" class="form-control">
+                    <option value="3">Survive an AZ failure or node failure</option>
+                    <option value="5">Survive multiple node failures or whole region failures</option>
+                </select>
+            </div>
         break;
         case 6:
-            <h1>Do you have analytical query needs?</h1>
-            <select @bind="d.Analytics" class="form-control">
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-                <option value="2">Yes, we need lots of analytics jobs in parallel</option>
-            </select>
+            <div class="fadeIn">
+                <h1>Do you have analytical query needs?</h1>
+                <select @bind="d.Analytics" class="form-control">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                    <option value="2">Yes, we need lots of analytics jobs in parallel</option>
+                </select>
+            </div>
         break;
         case 7:
-            <h1>What are your backup needs?</h1>
-            <select @bind="d.Backup" class="form-control">
-                <option>None</option>
-                <option>Daily Snapshots</option>
-                <option>Hourly Snapshots</option>
-                <option>Point-in-Time Rollback and Restore</option>
-            </select>
+            <div class="fadeIn">
+                <h1>What are your backup needs?</h1>
+                <select @bind="d.Backup" class="form-control">
+                    <option>None</option>
+                    <option>Daily Snapshots</option>
+                    <option>Hourly Snapshots</option>
+                    <option>Point-in-Time Rollback and Restore</option>
+                </select>
+            </div>
         break;
         case 8:
-            <h1>Roughly how many GBs of data do you need to store?</h1>
-            <input type="number" @bind="d.DataGB" class="form-control" />
+            <div class="fadeIn">
+                <h1>Roughly how many GBs of data do you need to store?</h1>
+                <input type="number" @bind="d.DataGB" class="form-control" />
+            </div>
         break;
         case 9:
             @if((d.DataGB > magic_maxReplSetSize) || (d.DataLocality == "Yes")) {
-                <h1>Are there any other fields you always query on (like a customer ID or order ID)?</h1>
-                @if(d.ShardKeys != null) {
-                    <table class="table table-striped" style="margin:5px;">
-                        <thead class="thead-dark"><tr>
-                            <th></th>
-                            <th>Field Name</th>
-                        </tr></thead>
-                        <tbody>
-                            @for (int i = 0; i < d.ShardKeys.Count; i++)
-                            {
-                                int k = i;
-                                <tr>
-                                    <td><button @onclick="(() => DelSK(d.ShardKeys[k]))" class="btn btn-sm btn-danger"><span class="oi oi-trash"></span></button></td>
-                                    <td>
-                                        <input type="text" @bind="d.ShardKeys[k]" class="form-control" />
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                    
-                }
-                <button @onclick="AddSK" class="btn btn-sm btn-warning" style="width: 100%;">Add Frequently Access Field</button>
+                <div class="fadeIn">
+                    <h1>Are there any other fields you always query on (like a customer ID or order ID)?</h1>
+                    @if(d.ShardKeys != null) {
+                        <table class="table table-striped" style="margin:5px;">
+                            <thead class="thead-dark"><tr>
+                                <th></th>
+                                <th>Field Name</th>
+                            </tr></thead>
+                            <tbody>
+                                @for (int i = 0; i < d.ShardKeys.Count; i++)
+                                {
+                                    int k = i;
+                                    <tr>
+                                        <td><button @onclick="(() => DelSK(d.ShardKeys[k]))" class="btn btn-sm btn-danger"><span class="oi oi-trash"></span></button></td>
+                                        <td>
+                                            <input type="text" @bind="d.ShardKeys[k]" class="form-control" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        
+                    }
+                    <button @onclick="AddSK" class="btn btn-sm btn-warning" style="width: 100%;">Add Frequently Access Field</button>
+                </div>
             } else {
                 Next();
             }
         break;
         default:
-            <div class="card" style="padding-top:50px;">
-                <div class="card-header">
-                    <h5 class="card-title">Results</h5>
-                    <p>We Recommend:</p>
-                    <ul>
-                        <!-- BEGIN: HANDLE REPL SET DETAILS -->
-                        <li>A replication factor of @d.HA</li>
-                        @if(d.Analytics != 0) {
-                            int replSetCt = d.HA + d.Analytics;
-                            <li>Another @d.Analytics node(s) for analytics (bringing total count to @replSetCt</li>
-                        }
-                        <!-- END: HANDLE REPL SET DETAILS -->
-
-                        <!-- BEGIN: HANDLE SHARDING -->
-                        @if ((d.DataLocality == "Yes") && (d.Localities != null)) {
-                            <li>Sharding due data locality reasons so you want at least @d.Localities.Count shards</li>
-                            <li>Viable shard keys would include:</li>
-                            <ul>
-                                <li>Location</li>
-                                @foreach (var sk in d.ShardKeys)
-                                {
-                                    <li>@sk</li>
-                                }
-                            </ul>
-                        } else if(d.DataGB > magic_maxReplSetSize) {
-                            int shardCount = d.DataGB/magic_maxReplSetSize;
-                            <li>Sharding due to size so you would want at least @shardCount shards </li>
-                            <li>Viable shard keys would include:</li>
-                            <ul>
-                                @foreach (var sk in d.ShardKeys)
-                                {
-                                    <li>@sk</li>
-                                }
-                            </ul>
-                        } 
-                        <!-- END: HANDLE SHARDING -->
-
-                        <!-- BEGIN: HANDLE SECURITY -->
-                        @if(d.DataClassification != "No Risk or No PII" ) {
-                            <li>Encryption at rest with BYOK using the WT encrypted storage engine</li>
-                            @if(d.DataClassification == "High Risk (PII)" ) {
-                                <li>Client Side Field Level Encryption</li>
-                            }
-                        }
-                        <!-- END: HANDLE SECURITY -->
-                    </ul>
-                    
-                    @if(d.IdenticalLowers == "Yes") {
-                        <p><i>Remember to deploy and identical lower environemnt for Dev and Pre-Prod!</i></p>
+            <div class="fadeIn">
+                <h1>Results</h1>
+                <p>We Recommend:</p>
+                <ul>
+                    <!-- BEGIN: HANDLE REPL SET DETAILS -->
+                    <li>A replication factor of @d.HA</li>
+                    @if(d.Analytics != 0) {
+                        int replSetCt = d.HA + d.Analytics;
+                        <li>Another @d.Analytics node(s) for analytics (bringing total count to @replSetCt per shard)</li>
                     }
-                </div>
+                    <!-- END: HANDLE REPL SET DETAILS -->
+
+                    <!-- BEGIN: HANDLE SHARDING -->
+                    @if ((d.DataLocality == "Yes") && (d.Localities != null)) {
+                        <li>Sharding due data locality reasons so you want at least @d.Localities.Count shards (at least one per locality)</li>
+                        <li>Compount shard keys would include:</li>
+                        <ul>
+                            <li>Always starting with <code>location</code> as a string in <a href="https://en.wikipedia.org/wiki//ISO_3166-1_alpha-2?oldid=961501727" target="_blank">ISO-3166-1 alpha 2 format</a></li>
+                            @foreach (var sk in d.ShardKeys)
+                            {
+                                <li><code>@sk</code></li>
+                            }
+                        </ul>
+                    } else if(d.DataGB > magic_maxReplSetSize) {
+                        int shardCount = d.DataGB/magic_maxReplSetSize;
+                        <li>Sharding due to size so you would want at least @shardCount shards </li>
+                        <li>Viable shard keys would include:</li>
+                        <ul>
+                            @foreach (var sk in d.ShardKeys)
+                            {
+                                <li>@sk</li>
+                            }
+                        </ul>
+                    } 
+                    <!-- END: HANDLE SHARDING -->
+
+                    <!-- BEGIN: HANDLE SECURITY -->
+                    @if(d.DataClassification != "No Risk or No PII" ) {
+                        <li>Encryption at rest with <a href="https://docs.atlas.mongodb.com/security-kms-encryption/" target="_blank">BYOK</a> using the WT encrypted storage engine</li>
+                        @if(d.DataClassification == "High Risk (PII)" ) {
+                            <li><a href="https://docs.mongodb.com/manual/core/security-client-side-encryption/" target="_blank">Client Side Field Level Encryption</a></li>
+                        }
+                    }
+                    <!-- END: HANDLE SECURITY -->
+
+                    <!-- BEGIN: HANDLE BACKUP -->
+                    <li><a href="https://docs.atlas.mongodb.com/backup/cloud-backup/overview/" target="_blank">Backup</a> using @d.Backup</li>
+                </ul>
+                
+                @if(d.IdenticalLowers == "Yes") {
+                    <p><i>Remember to deploy and identical lower environemnt for Dev and Pre-Prod!</i></p>
+                }
+
+                <p>Now click here to download this as an example terraform template! (Coming Soon)</p>
             </div>
         break;
 
