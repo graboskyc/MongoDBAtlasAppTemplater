@@ -20,11 +20,22 @@ body {
 .aniloader {
     animation: ctr_spin_rotation 2s infinite linear;
     display:block;
-    height:50vh;
-    margin-top:25vh;
     background-color: var(--mdb-white);
     border-radius: 100px; 
     padding:50px;
+    height:50vh;
+    margin-top:25vh;
+}
+
+.loader {
+    display:block;
+    background-color: var(--mdb-white);
+    border-radius: 100px; 
+    padding:50px;
+    height:80vh;
+    margin-top:10vh;
+    width: 80%;
+    margin-left:10%;
 }
 
 .ctr_spin_parent {

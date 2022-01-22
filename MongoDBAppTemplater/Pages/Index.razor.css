@@ -1,5 +1,7 @@
-.container {
-    background-color: #ffffff !important;
-    min-height: 100vh;
-    padding: 10%;
+ul {
+    text-align: left !important;
+}
+
+div.row {
+    margin-top:20px !important;
 }
