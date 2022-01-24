@@ -67,7 +67,7 @@
                                 {
                                     int j = i;
                                     <tr>
-                                        <td><button @onclick="(() => DelLoc(d.Localities[j]))" class="btn btn-sm btn-danger"><span class="oi oi-trash"></span></button></td>
+                                        <td><button @onclick="(() => DelLoc(d.Localities[j]))" class="btn btn-sm btn-danger"><span class="oi oi-trash oi-big"></span></button></td>
                                         <td>
                                             <select @bind="d.Localities[j]" class="form-control">
                                                 @foreach (var pli in PossibleLocalities)
@@ -82,7 +82,7 @@
                         </table>
                         
                     }
-                    <button @onclick="AddLoc" class="btn btn-sm btn-warning" style="width: 100%;">Add Locality Requirement</button>
+                    <button @onclick="AddLoc" class="btn btn-lg btn-warning" style="width: 100%;">Add Locality Requirement</button>
                 }
             </div>
         break;
@@ -137,7 +137,7 @@
                                 {
                                     int k = i;
                                     <tr>
-                                        <td><button @onclick="(() => DelSK(d.ShardKeys[k]))" class="btn btn-sm btn-danger"><span class="oi oi-trash"></span></button></td>
+                                        <td><button @onclick="(() => DelSK(d.ShardKeys[k]))" class="btn btn-lg btn-danger"><span class="oi oi-trash oi-big"></span></button></td>
                                         <td>
                                             <input type="text" @bind="d.ShardKeys[k]" class="form-control" />
                                         </td>
@@ -147,67 +147,46 @@
                         </table>
                         
                     }
-                    <button @onclick="AddSK" class="btn btn-sm btn-warning" style="width: 100%;">Add Frequently Access Field</button>
+                    <button @onclick="AddSK" class="btn btn-lg btn-warning" style="width: 100%;">Add Frequently Access Field</button>
                 </div>
             } else {
                 Next();
             }
         break;
+        case 10:
+            <div class="fadeIn">
+                <h1>Does the data in @d.Name represent a specific type of use case?</h1>
+                <select @bind="d.UseCase" class="form-control">
+                    <option>Other</option>
+                    <option>Content Management</option>
+                    <option>Catalog</option>
+                    <option>Edge Computing / MEC</option>
+                    <option>Graph Relations</option>
+                    <option>IOT</option>
+                    <option>Message Queue Persistence</option>
+                    <option>Mobile</option>
+                    <option>Personalization</option>
+                    <option>Real-Time Analytics</option>
+                    <option>Search</option>
+                    <option>Single View</option>
+                </select>
+            </div>
+        break;
         default:
             <div class="fadeIn">
                 <h1>Results</h1>
-                <p>We Recommend:</p>
-                <ul>
-                    <!-- BEGIN: HANDLE REPL SET DETAILS -->
-                    <li>A replication factor of @d.HA</li>
-                    @if(d.Analytics != 0) {
-                        int replSetCt = d.HA + d.Analytics;
-                        <li>Another @d.Analytics node(s) for analytics (bringing total count to @replSetCt per shard)</li>
-                    }
-                    <!-- END: HANDLE REPL SET DETAILS -->
 
-                    <!-- BEGIN: HANDLE SHARDING -->
-                    @if ((d.DataLocality == "Yes") && (d.Localities != null)) {
-                        <li>Sharding due data locality reasons so you want at least @d.Localities.Count shards (at least one per locality)</li>
-                        <li>Compount shard keys would include:</li>
-                        <ul>
-                            <li>Always starting with <code>location</code> as a string in <a href="https://en.wikipedia.org/wiki//ISO_3166-1_alpha-2?oldid=961501727" target="_blank">ISO-3166-1 alpha 2 format</a></li>
-                            @foreach (var sk in d.ShardKeys)
-                            {
-                                <li><code>@sk</code></li>
-                            }
-                        </ul>
-                    } else if(d.DataGB > magic_maxReplSetSize) {
-                        int shardCount = d.DataGB/magic_maxReplSetSize;
-                        <li>Sharding due to size so you would want at least @shardCount shards </li>
-                        <li>Viable shard keys would include:</li>
-                        <ul>
-                            @foreach (var sk in d.ShardKeys)
-                            {
-                                <li>@sk</li>
-                            }
-                        </ul>
-                    } 
-                    <!-- END: HANDLE SHARDING -->
 
-                    <!-- BEGIN: HANDLE SECURITY -->
-                    @if(d.DataClassification != "No Risk or No PII" ) {
-                        <li>Encryption at rest with <a href="https://docs.atlas.mongodb.com/security-kms-encryption/" target="_blank">BYOK</a> using the WT encrypted storage engine</li>
-                        @if(d.DataClassification == "High Risk (PII)" ) {
-                            <li><a href="https://docs.mongodb.com/manual/core/security-client-side-encryption/" target="_blank">Client Side Field Level Encryption</a></li>
-                        }
-                    }
-                    <!-- END: HANDLE SECURITY -->
-
-                    <!-- BEGIN: HANDLE BACKUP -->
-                    <li><a href="https://docs.atlas.mongodb.com/backup/cloud-backup/overview/" target="_blank">Backup</a> using @d.Backup</li>
-                </ul>
-                
-                @if(d.IdenticalLowers == "Yes") {
-                    <p><i>Remember to deploy and identical lower environemnt for Dev and Pre-Prod!</i></p>
+                @if(!toggleTF) {
+                    <p>We Recommend:</p>                
+                    <RecommendationEnglish d=@d />
+                    <button class="btn btn-lg btn-warning" @onclick="ToggleTF">Show Terraform</button>
+                } else {
+                    <p>Sample Terraform:</p>
+                    <RecommendationTF d=@d />
+                    <button class="btn btn-lg btn-warning" @onclick="ToggleTF">Show Overview</button>
                 }
 
-                <p>Now click here to download this as an example terraform template! (Coming Soon)</p>
             </div>
         break;
 
@@ -220,7 +199,7 @@
             }
         </div>
         <div class="col">
-            @if(clickIndex < 10) {
+            @if(clickIndex < 11) {
                 <button @onclick="Next" class="btn btn-lg btn-secondary" style="width: 100%;">Next <span class="oi oi-media-skip-forward"></span></button>
             }
         </div>
@@ -239,6 +218,7 @@
     private List<string> PossibleLocalities = new List<string>{"US","EU","APAC"};
     private int magic_maxReplSetSize = 2500;
     private int clickIndex = 0;
+    private bool toggleTF = false;
 
     protected override async Task OnInitializedAsync() {
         d = new DataModels.Deployment();
@@ -251,6 +231,10 @@
             clickIndex=clickIndex-1;
         }
         Console.WriteLine(clickIndex);
+    }
+
+    private void ToggleTF() {
+        toggleTF = !toggleTF;
     }
 
     private void Next() {

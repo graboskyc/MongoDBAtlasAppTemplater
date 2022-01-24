@@ -1,6 +1,6 @@
 :root {
     --mdb-bg-primary: #00684a;
-    --mdb-bg-secondary: #023430;
+    --mdb-bg-secondary: #001e2b;
     --mdb-white: #ffffff;
     --mdb-globalsize: 3rem;
 }
@@ -74,3 +74,37 @@ body {
     animation-iteration-count: 1;
     animation-duration: 1500ms;
  }
+
+ .btn-success {
+    color: #001e2b !important;
+    background-color: #00ed64 !important;
+    border-color: #00ed64 !important;
+ }
+
+ .btn-secondary {
+    color: #ffffff !important;
+    background-color: #023430 !important;
+    border-color: #023430 !important;
+ }
+
+ .btn-warning {
+    color: #001e2b !important;
+    background-color: #e9ff99 !important;
+    border-color: #e9ff99 !important;
+ }
+
+ .form-control {
+     font-size:3rem !important;
+ }
+
+ h1 {
+     font-size:4rem !important;
+ }
+
+.oi-big { 
+     font-size: 3rem !important;
+}
+
+code {
+    color: #00ed64 !important;
+}

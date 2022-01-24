@@ -1,0 +1,77 @@
+<ul>
+    <!-- BEGIN: HANDLE REPL SET DETAILS -->
+    <li>A replication factor of @d.HA</li>
+    @if(d.Analytics != 0) {
+        int replSetCt = d.HA + d.Analytics;
+        <li>Another @d.Analytics node(s) for analytics (bringing total count to @replSetCt per shard)</li>
+    }
+    <!-- END: HANDLE REPL SET DETAILS -->
+
+    <!-- BEGIN: HANDLE SHARDING -->
+    @if ((d.DataLocality == "Yes") && (d.Localities != null)) {
+        <li>Sharding due data locality reasons so you want at least @d.Localities.Count shards (at least one per locality)</li>
+        <li>Compount shard keys would include:</li>
+        <ul>
+            <li>Always starting with <code>location</code> as a string in <a href="https://en.wikipedia.org/wiki//ISO_3166-1_alpha-2?oldid=961501727" target="_blank">ISO-3166-1 alpha 2 format</a></li>
+            @foreach (var sk in d.ShardKeys)
+            {
+                <li><code>@sk</code></li>
+            }
+        </ul>
+    } else if(d.DataGB > magic_maxReplSetSize) {
+        int shardCount = d.DataGB/magic_maxReplSetSize;
+        <li>Sharding due to size so you would want at least @shardCount shards </li>
+        <li>Viable shard keys would include:</li>
+        <ul>
+            @foreach (var sk in d.ShardKeys)
+            {
+                <li>@sk</li>
+            }
+        </ul>
+    } 
+    <!-- END: HANDLE SHARDING -->
+
+    <!-- BEGIN: HANDLE SECURITY -->
+    @if(d.DataClassification != "No Risk or No PII" ) {
+        <li>Encryption at rest with <a href="https://docs.atlas.mongodb.com/security-kms-encryption/" target="_blank">BYOK</a> using the WT encrypted storage engine</li>
+        @if(d.DataClassification == "High Risk (PII)" ) {
+            <li><a href="https://docs.mongodb.com/manual/core/security-client-side-encryption/" target="_blank">Client Side Field Level Encryption</a></li>
+        }
+    }
+    <!-- END: HANDLE SECURITY -->
+
+    <!-- BEGIN: HANDLE BACKUP -->
+    @if(d.Backup != "None") {
+        <li><a href="https://docs.atlas.mongodb.com/backup/cloud-backup/overview/" target="_blank">Backup</a> using @d.Backup</li>
+    }
+    <!-- BEGIN: HANDLE BACKUP -->
+
+    <!-- BEGIN: USE CASE -->
+    <li>For a use of "@d.UseCase" we would recommend the following resources:</li>
+    <ul>
+        <li><a href="https://university.mongodb.com/courses/M320/about" target="_blank">MongoDB University M320</a></li>
+        <li><a href="https://www.mongodb.com/blog/post/building-with-patterns-a-summary" target="_blank">Building with Patterns Blog Post Series</a></li>
+        @if(d.UseCase == "IOT") {
+            <li><a href="https://docs.mongodb.com/manual/core/timeseries-collections/" target="_blank">Time Series Collections in MongoDB 5.0+</a></li>
+            <li>or <a href="https://www.mongodb.com/blog/post/building-with-patterns-the-bucket-pattern" target="_blank">The Bucketing Pattern</a></li>
+        } else if (d.UseCase == "Single View") {
+            <li></li>
+        } else if(d.UseCase == "Analytics") {
+            <li><a href="https://www.mongodb.com/analytics" target="_blank">Analytics Info</a></li>
+            <li><a href="https://www.mongodb.com/use-cases/real-time-analytics" target="_blank">Real Time Analytics Info</a></li>
+            <li>Consider adding read-only or analytical nodes to the replica set</li>
+        }
+    </ul>
+    <!-- END: USE CASE -->
+</ul>
+
+@if(d.IdenticalLowers == "Yes") {
+    <p><i>Remember to deploy and identical lower environemnt for Dev and Pre-Prod!</i></p>
+}
+
+@code {
+    [Parameter]
+    public DataModels.Deployment d {get;set;}
+
+    private int magic_maxReplSetSize = 2500;
+}

@@ -1,0 +1,13 @@
+.codish {
+    font-size:12px;
+    height:40vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    text-align: left !important;
+    white-space: pre !important;
+    color:#00ed64;
+    display: inline-block;
+    left: 0px;
+    width: 100%;
+    background: #001e2b;
+}

@@ -1,5 +1,5 @@
 namespace MongoDBAppTemplater.DataModels {
-    class Deployment {
+    public class Deployment {
         public string Name {get;set;}
         public string DataClassification {get;set;} = "Moderate Risk";
         public string UsageType {get;set;} = "Development";
@@ -11,5 +11,6 @@ namespace MongoDBAppTemplater.DataModels {
         public List<string> Localities {get;set;} = null;
         public string Backup {get;set;} = "None";
         public List<string> ShardKeys {get;set;} = new List<string>();
+        public string UseCase {get;set;} = "Other";
     }
 }
