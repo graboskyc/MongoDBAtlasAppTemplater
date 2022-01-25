@@ -1,4 +1,112 @@
-<div class="codish">
+@if(d.DataLocality=="Yes") {
+    <!-- GEO SHARD (GLOBAL CLUSTER) -->
+    <div class="codish">
+resource "mongodbatlas_cluster" "@d.Name" {
+  project_id              = "replaceme"
+  name                    = "@d.Name"
+  disk_size_gb            = @DiskSize
+  num_shards              = 1
+  cloud_backup            = @BU
+  cluster_type            = "GEOSHARDED"
+
+  # Provider Settings "block"
+  provider_name               = "AWS"
+  provider_instance_size_name = "M50"
+
+  replication_specs {
+    zone_name  = "Zone 1"
+    num_shards = 2
+    regions_config {
+      region_name     = "US_EAST_1"
+      electable_nodes = @d.HA
+      priority        = 7
+      read_only_nodes = @d.Analytics
+    }
+  }
+
+  replication_specs {
+    zone_name  = "Zone 2"
+    num_shards = 2
+    regions_config {
+      region_name     = "EU_CENTRAL_1"
+      electable_nodes = @d.HA
+      priority        = 7
+      read_only_nodes = @d.Analytics
+    }
+  }
+}
+    </div>
+} else if(d.DataGB > 2500) {
+    <!-- SHARD WITHOUT BEING GLOBAL -->
+    <div class="codish">
+resource "mongodbatlas_cluster" "@d.Name" {
+project_id   = "replaceme"
+name         = "@d.Name"
+cluster_type = "SHARDED"
+
+replication_specs {
+    num_shards = @Shards
+    regions_config {
+        region_name     = "US_EAST_1"
+        electable_nodes = @d.HA
+        priority        = 7
+        read_only_nodes = @d.Analytics
+    }
+}
+
+cloud_backup = @BU
+auto_scaling_disk_gb_enabled = true
+mongo_db_major_version       = "4.4"
+
+# Provider Settings "block"
+provider_name               = "AWS"
+disk_size_gb                = @DiskSize
+provider_instance_size_name = "M50"
+}
+    </div>
+} else {
+    <!-- REP SET -->
+    <!-- MULTI REGION REP SET-->
+    @if(d.HA > 3) {
+        <div class="codish">
+resource "mongodbatlas_cluster" "@d.Name" {
+  project_id               = "replaceme"
+  name                     = "@d.Name"
+  disk_size_gb             = @DiskSize
+  num_shards               = 1
+  cloud_backup             = @BU
+  cluster_type             = "REPLICASET"
+
+  # Provider Settings "block"
+  provider_name               = "AWS"
+  provider_instance_size_name = "M50"
+
+  replication_specs {
+    num_shards = 1
+    regions_config {
+      region_name     = "US_EAST_1"
+      electable_nodes = @d.HA
+      priority        = 7
+      read_only_nodes = @d.Analytics
+    }
+    regions_config {
+      region_name     = "US_EAST_2"
+      electable_nodes = @d.HA
+      priority        = 6
+      read_only_nodes = @d.Analytics
+    }
+    regions_config {
+      region_name     = "US_WEST_1"
+      electable_nodes = @d.HA
+      priority        = 5
+      read_only_nodes = @d.Analytics
+    }
+  }
+}
+        </div>
+    } else {
+        <!-- SINGLE REGION REP SET --> 
+        <div class="codish">
 resource "mongodbatlas_cluster" "@d.Name" {
 project_id   = "replaceme"
 name         = "@d.Name"
@@ -14,19 +122,40 @@ replication_specs {
     }
 }
 
-cloud_backup = true
+cloud_backup = @BU
 auto_scaling_disk_gb_enabled = true
 mongo_db_major_version       = "4.4"
 
 # Provider Settings "block"
 provider_name               = "AWS"
-disk_size_gb                = 200
+disk_size_gb                = @DiskSize
 provider_instance_size_name = "M50"
 }
-</div>
+        </div>
+    }
+}
 
 @code {
     [Parameter]
     public DataModels.Deployment d {get;set;}
+    private string BU = "true";
+    private int Shards = 1;
+    private int DiskSize = 500;
+
+    protected override async Task OnInitializedAsync() {
+        if(d.Backup == "None") {
+            BU = "false";
+        } else {
+            BU = "true";
+        }
+        Shards = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(d.DataGB) / Convert.ToDecimal(2500)));
+        if (d.DataGB > 500) {
+            if(Shards > 1) {
+                DiskSize = Convert.ToInt32(Math.Ceiling((Convert.ToDecimal(d.DataGB) / Convert.ToDecimal(Shards)) + Convert.ToDecimal(100)));
+            } else {
+                DiskSize = d.DataGB + 100;
+            }
+        }
+    }
 
 }
