@@ -88,10 +88,10 @@
         break;
         case 5:
             <div class="fadeIn">
-                <h1>What is your High-Availability requirement?</h1>
+                <h1>For High Availability, @d.Name should survive:</h1>
                 <select @bind="d.HA" class="form-control">
-                    <option value="3">Survive an AZ failure or node failure</option>
-                    <option value="5">Survive multiple node failures or whole region failures</option>
+                    <option value="3">An AZ or node failure</option>
+                    <option value="5">Two node/AZ or regional failure</option>
                 </select>
             </div>
         break;
